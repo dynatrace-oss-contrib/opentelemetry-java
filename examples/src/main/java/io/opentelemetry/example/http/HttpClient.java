@@ -17,6 +17,7 @@ package io.opentelemetry.example.http;
 
 import io.opentelemetry.context.propagation.HttpTextFormat;
 import io.opentelemetry.exporters.inmemory.InMemorySpanExporter;
+import io.opentelemetry.exporters.logging.LoggingExporter;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.trace.SpanData;
 import io.opentelemetry.sdk.trace.TracerSdkFactory;
@@ -29,6 +30,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.Charset;
 
 public class HttpClient {
 
@@ -37,6 +39,8 @@ public class HttpClient {
   Tracer tracer;
   // Export traces in memory
   InMemorySpanExporter inMemexporter = InMemorySpanExporter.create();
+  // Export traces to log
+  LoggingExporter loggingExporter = new LoggingExporter();
   // Inject the span context into the request
   HttpTextFormat.Setter<HttpURLConnection> setter =
       new HttpTextFormat.Setter<HttpURLConnection>() {
@@ -51,8 +55,10 @@ public class HttpClient {
     TracerSdkFactory tracerFactory = OpenTelemetrySdk.getTracerFactory();
     // Set to process in memory the spans
     tracerFactory.addSpanProcessor(SimpleSpansProcessor.newBuilder(inMemexporter).build());
+    // Set to export the traces also to a log file
+    tracerFactory.addSpanProcessor(SimpleSpansProcessor.newBuilder(loggingExporter).build());
     // Give a name to the traces
-    this.tracer = tracerFactory.get("io.opentelemetry.example.otcollector.HttpClient");
+    this.tracer = tracerFactory.get("io.opentelemetry.example.http.HttpClient");
   }
 
   public HttpClient() throws Exception {
@@ -64,8 +70,7 @@ public class HttpClient {
 
     // Name convention for the Span is not yet defined.
     // See: https://github.com/open-telemetry/opentelemetry-specification/issues/270
-    Span span =
-        tracer.spanBuilder("/").setSpanKind(Span.Kind.CLIENT).startSpan();
+    Span span = tracer.spanBuilder("/").setSpanKind(Span.Kind.CLIENT).startSpan();
     // TODO provide semantic convention attributes to Span.Builder
     span.setAttribute("component", "http");
     span.setAttribute("http.method", "GET");
@@ -87,7 +92,8 @@ public class HttpClient {
       // Process the request
       con.setRequestMethod("GET");
       status = con.getResponseCode();
-      BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+      BufferedReader in =
+          new BufferedReader(new InputStreamReader(con.getInputStream(), Charset.defaultCharset()));
       String inputLine;
       while ((inputLine = in.readLine()) != null) {
         content.append(inputLine);

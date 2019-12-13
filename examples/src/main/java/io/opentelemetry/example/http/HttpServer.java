@@ -19,15 +19,21 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import io.opentelemetry.context.propagation.HttpTextFormat;
 import io.opentelemetry.exporters.inmemory.InMemorySpanExporter;
+import io.opentelemetry.exporters.logging.LoggingExporter;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.trace.SpanData;
 import io.opentelemetry.sdk.trace.TracerSdkFactory;
 import io.opentelemetry.sdk.trace.export.SimpleSpansProcessor;
-import io.opentelemetry.trace.*;
+import io.opentelemetry.trace.AttributeValue;
+import io.opentelemetry.trace.Span;
+import io.opentelemetry.trace.SpanContext;
+import io.opentelemetry.trace.Tracer;
+import io.opentelemetry.trace.Status;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -77,7 +83,7 @@ public class HttpServer {
       String response = "Hello World!";
       he.sendResponseHeaders(200, response.length());
       OutputStream os = he.getResponseBody();
-      os.write(response.getBytes());
+      os.write(response.getBytes(Charset.defaultCharset()));
       os.close();
       System.out.println("Served Client: " + he.getRemoteAddress());
 
@@ -98,6 +104,8 @@ public class HttpServer {
   Tracer tracer;
   // Export traces in memory
   InMemorySpanExporter inMemexporter = InMemorySpanExporter.create();
+  // Export traces to log
+  LoggingExporter loggingExporter = new LoggingExporter();
   // Extract the context from http headers
   HttpTextFormat.Getter<HttpExchange> getter =
       new HttpTextFormat.Getter<HttpExchange>() {
@@ -128,8 +136,10 @@ public class HttpServer {
     TracerSdkFactory tracerFactory = OpenTelemetrySdk.getTracerFactory();
     // Set to process in memory the spans
     tracerFactory.addSpanProcessor(SimpleSpansProcessor.newBuilder(inMemexporter).build());
+    // Set to export the traces also to a log file
+    tracerFactory.addSpanProcessor(SimpleSpansProcessor.newBuilder(loggingExporter).build());
     // Give a name to the traces
-    this.tracer = tracerFactory.get("io.opentelemetry.example.otcollector.HttpServer");
+    this.tracer = tracerFactory.get("io.opentelemetry.example.http.HttpServer");
   }
 
   private void stop() {

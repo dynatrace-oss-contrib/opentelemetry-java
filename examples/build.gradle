@@ -10,7 +10,8 @@ task fatJar(type: Jar) {
 dependencies {
     api project(':opentelemetry-api'),
             project(':opentelemetry-sdk'),
-            project(':opentelemetry-exporters-inmemory')
+            project(':opentelemetry-exporters-inmemory'),
+            project(':opentelemetry-exporters-logging')
 }
 
 animalsniffer {
