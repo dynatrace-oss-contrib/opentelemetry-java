@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.opentelemetry.example;
+package io.opentelemetry.example.http;
 
 import io.opentelemetry.context.propagation.HttpTextFormat;
 import io.opentelemetry.exporters.inmemory.InMemorySpanExporter;
@@ -22,10 +22,8 @@ import io.opentelemetry.sdk.trace.SpanData;
 import io.opentelemetry.sdk.trace.TracerSdkFactory;
 import io.opentelemetry.sdk.trace.export.SimpleSpansProcessor;
 import io.opentelemetry.trace.Span;
-import io.opentelemetry.trace.SpanContext;
 import io.opentelemetry.trace.Status;
 import io.opentelemetry.trace.Tracer;
-import io.opentelemetry.trace.propagation.HttpTraceContext;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -54,7 +52,7 @@ public class HttpClient {
     // Set to process in memory the spans
     tracerFactory.addSpanProcessor(SimpleSpansProcessor.newBuilder(inMemexporter).build());
     // Give a name to the traces
-    this.tracer = tracerFactory.get("io.opentelemetry.example.HttpClient");
+    this.tracer = tracerFactory.get("io.opentelemetry.example.otcollector.HttpClient");
   }
 
   public HttpClient() throws Exception {
