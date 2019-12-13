@@ -27,9 +27,8 @@ import io.opentelemetry.sdk.trace.export.SimpleSpansProcessor;
 import io.opentelemetry.trace.AttributeValue;
 import io.opentelemetry.trace.Span;
 import io.opentelemetry.trace.SpanContext;
-import io.opentelemetry.trace.Tracer;
 import io.opentelemetry.trace.Status;
-
+import io.opentelemetry.trace.Tracer;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -91,7 +90,7 @@ public class HttpServer {
       Map<String, AttributeValue> event = new HashMap<>();
       event.put("answer", AttributeValue.stringAttributeValue(response));
       span.addEvent("Finish Processing", event);
-      
+
       // Everything works fine in this example
       span.setStatus(Status.OK);
     }
