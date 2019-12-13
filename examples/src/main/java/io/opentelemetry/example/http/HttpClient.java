@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.opentelemetry.example.http;
 
 import io.opentelemetry.context.propagation.HttpTextFormat;
@@ -60,7 +61,7 @@ public class HttpClient {
     this.tracer = tracerFactory.get("io.opentelemetry.example.http.HttpClient");
   }
 
-  public HttpClient() throws Exception {
+  private HttpClient() throws Exception {
     initTracer();
 
     // Connect to the server locally
@@ -111,7 +112,12 @@ public class HttpClient {
     System.out.println("Response Msg: " + content);
   }
 
-  public static void main(String[] args) throws Exception {
+  /**
+   * Main method to run the example.
+   *
+   * @param args It is not required.
+   */
+  public static void main(String[] args) {
     // Perform request every 5s
     Thread t =
         new Thread() {
@@ -127,7 +133,6 @@ public class HttpClient {
                 c.inMemexporter.reset();
               } catch (Exception e) {
                 System.out.println(e.getMessage());
-                e.printStackTrace(System.out);
               }
             }
           }

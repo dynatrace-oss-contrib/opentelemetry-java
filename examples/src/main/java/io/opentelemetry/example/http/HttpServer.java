@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.opentelemetry.example.http;
 
 import com.sun.net.httpserver.HttpExchange;
@@ -117,11 +118,11 @@ public class HttpServer {
         }
       };
 
-  public HttpServer() throws IOException {
+  private HttpServer() throws IOException {
     this(port);
   }
 
-  public HttpServer(int port) throws IOException {
+  private HttpServer(int port) throws IOException {
     initTracer();
     server = com.sun.net.httpserver.HttpServer.create(new InetSocketAddress(port), 0);
     // Test urls
@@ -145,6 +146,12 @@ public class HttpServer {
     server.stop(0);
   }
 
+  /**
+   * Main method to run the example.
+   *
+   * @param args It is not required.
+   * @throws Exception Something might go wrong.
+   */
   public static void main(String[] args) throws Exception {
     final HttpServer s = new HttpServer();
     // Gracefully close the server
@@ -169,6 +176,7 @@ public class HttpServer {
                 }
                 s.inMemexporter.reset();
               } catch (Exception e) {
+                System.err.println(e.getMessage());
               }
             }
           }
