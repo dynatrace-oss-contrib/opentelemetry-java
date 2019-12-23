@@ -54,7 +54,7 @@ public class HttpClient {
   private void initTracer() {
     // Get the tracer
     TracerSdkFactory tracerFactory = OpenTelemetrySdk.getTracerFactory();
-    //Show that multiple exporters can be used
+    // Show that multiple exporters can be used
 
     // Set to process in memory the spans
     tracerFactory.addSpanProcessor(SimpleSpansProcessor.newBuilder(inMemexporter).build());
