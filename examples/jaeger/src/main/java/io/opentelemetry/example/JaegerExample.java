@@ -2,6 +2,7 @@ package io.opentelemetry.example;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.internal.AbstractManagedChannelImplBuilder;
 import io.opentelemetry.OpenTelemetry;
 import io.opentelemetry.exporters.jaeger.JaegerGrpcSpanExporter;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
@@ -27,13 +28,14 @@ public class JaegerExample {
 
   private void setupJaegerExporter() {
     // Create a channel towards Jaeger end point
-    ManagedChannel jaegerChannel = ManagedChannelBuilder.forAddress(ip, port).build();
+    ManagedChannel jaegerChannel =
+        ManagedChannelBuilder.forAddress(ip, port).usePlaintext().build();
     // Export traces to Jaeger
     this.jaegerExporter =
         JaegerGrpcSpanExporter.newBuilder()
             .setServiceName("example")
             .setChannel(jaegerChannel)
-            .setDeadline(30)
+            .setDeadline(30000)
             .build();
 
     // Set to process the spans by the Jaeger Exporter
@@ -60,22 +62,24 @@ public class JaegerExample {
 
   public static void main(String[] args) {
     // Parsing the input
+    String ip;
+    int port;
+
     if (args.length < 2) {
       System.out.println("Missing [hostname] [port]");
-      System.exit(1);
+      System.out.println("Using default values: localhost:14250");
+      ip = "localhost";
+      port = 14250;
+    } else {
+      ip = args[0];
+      port = Integer.parseInt(args[1]);
     }
-    String ip = args[0];
-    int port = Integer.parseInt(args[1]);
 
     // Start the example
     JaegerExample example = new JaegerExample(ip, port);
     example.setupJaegerExporter();
     example.myWonderfulUseCase();
-    // wait some seconds
-    try {
-      Thread.sleep(1000);
-    } catch (InterruptedException e) {
-    }
+
     System.out.println("Bye");
   }
 }
