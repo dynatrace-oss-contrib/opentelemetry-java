@@ -51,7 +51,7 @@ public class RateLimiter {
       currentBalanceNanos = this.currentBalance.get();
       currentNanos = clock.nanoTime();
       long currentAvailableBalance = currentNanos - currentBalanceNanos;
-      if (currentAvailableBalance > maxBalance) {
+      if (currentAvailableBalance - maxBalance < 0) { // Do not compare directly b/c of overflow.
         currentAvailableBalance = maxBalance;
       }
       availableBalanceAfterWithdrawal = currentAvailableBalance - cost;
